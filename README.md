@@ -1,1 +1,2 @@
-# ML_project2
+# Machine Learning for EDS Data Decomposition 
+Machine Learning Course Project 2
