@@ -6,4 +6,6 @@ Energy Dispersive X-ray Spectroscopy (EDS, EDX or XEDS) is a qualitative and qua
 
 ## Libraries Required and installation
 1. [Hyperspy](https://hyperspy.org/): HyperSpy is an open source Python library which provides tools to facilitate the interactive data analysis of multi-dimensional datasets that can be described as multi-dimensional arrays of a given signal.To install, run the following commands in the terminal:
-``` conda install hyperspy -c conda-forge '''
+``` 
+conda install hyperspy -c conda-forge 
+'''
