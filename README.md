@@ -15,5 +15,5 @@ conda install hyperspy-gui-traitsui -c conda-forge
 ```
 pip install fuzzy-c-means
 ```
-Apart from the above, a working version of the latest scikit-learn for Python is required.
+Apart from the above, a working version of the latest [scikit-learn](https://scikit-learn.org/stable/) for Python is required.
 
