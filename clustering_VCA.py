@@ -9,7 +9,7 @@ from fcmeans import FCM
 from sklearn.cluster import KMeans
 
 def svd_decomposition( data ):
-	U, s, VT = np.linalg.svd(temp)
+	U, s, VT = np.linalg.svd(data)
 	S = np.diag(s[0:2])
 	U1 = U[:,0:2]
 	VT1 = VT[0:2,:]
@@ -33,7 +33,3 @@ def K_means( data ):
 	kmeans = KMeans(n_clusters=2, random_state=0).fit(svd)
 	kmeans_centers = kmeans.cluster_centers_
 	plot( kmeans_centers, 'kmeans', 'Decomposition using K-Means clustering')
-
-
-
-# vertex component analysis
