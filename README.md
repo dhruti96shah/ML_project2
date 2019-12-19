@@ -17,3 +17,6 @@ pip install fuzzy-c-means
 ```
 Apart from the above, a working version of the latest [scikit-learn](https://scikit-learn.org/stable/) for Python is required.
 
+## Running the code.
+1. After installing the above packages, the python notebook run.py contains the blocks of codes to run the relevant experiments.
+
