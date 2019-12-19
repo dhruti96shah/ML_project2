@@ -1,13 +1,13 @@
 import numpy as np
 
 # Alternating least squares. It is used to intialize the parameters of Alternate Non-negative least squares.
-def ALS(V,W,H,max_iters):
+def ALS(V,W,H,max_iters,bkg):
 	for i in range(max_iters):
 		W = np.transpose( fit_neg(np.transpose(V),np.transpose(H),np.transpose(W)) )
-		# As heuristic is appended to first row we fix the enteries in our intialization.
-		W[0,0] = 1
-		W[0,1] = 0
 		H = fit_neg(V,W,H)
+		# As Heuristic is appended to first row we fix the enteries in our intialization.
+		# This is one of the ways we use the heuristic.
+		H[0,:] = bkg
 	W[ np.where(W < 0) ] = 0  
 	H[ np.where(H < 0) ] = 0  
 	return W,H
@@ -25,17 +25,14 @@ def fit_neg(V,W,H):
 
 # Alternating Non-negative least squares.
 # Alternatly fits each matrix and uses the parameters lambda_Si, lambda_bkg to converge to relevant data.
-def ALNS(V_,W_,H_,max_iters,lambda_Si,lambda_bkg,gamma,Si_length):
+def ANLS(V_,W_,H_,max_iters,lambda_Si,lambda_bkg,gamma,Si_length):
 	# Copy the values so the intial values are not overwritten.
 	V = np.copy(V_)
 	W = np.copy(W_)
 	H = np.copy(H_)
 	for i in range(max_iters):
-		print( "Iteration: ", i )
 		W = np.transpose( fit_W(np.transpose(V),np.transpose(H),np.transpose(W),lambda_bkg,gamma) )
 		H = fit_H(V,W,H,lambda_Si,gamma,Si_length)
-		if( i % 10 == 0 ):
-			print_loss( V, W, H)
 	return W,H
 
 def fit_H(V,W,H,lambda_Si,gamma,Si_length):
@@ -66,7 +63,7 @@ def fit_W(V,W,H,lambda_bkg,gamma):
 	columns = V.shape[1]
 	max_iters = 10
 	for column in range(columns):
-		# if it is the first column the regularize its second entry.
+		# If it is the first column the regularize its second entry.
 		H[:,column] = non_neg_grad_descent_W(V[:,column],W,H[:,column],max_iters,gamma,(column == 0),lambda_bkg)
 	return H
 

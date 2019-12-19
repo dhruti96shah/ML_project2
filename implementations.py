@@ -75,34 +75,80 @@ def normalize( data, loadings, factors ):
 	return data,loadings
 
 # To run the experiments for various values of hyper parameters and pick the relevant result.
-def tune_hyper_parameters(data,loadings,factors):
-	gamma_range = [0.001,0.01,0.1,1]
-	lambda_range = [0.001,0.01,0.1]
-	best_loss = 10e6
+# Comment the line mentioned below if you don't want to generate huge number of plots
+def tune_hyper_parameters(data):
+	gamma_range = [0.001,0.01,0.1]
+	lambda_bkg_range = [0.01,0.1,1]
+	lambda_si_range = [0.01,0.1,1]
+	best_si_avg = 10e6
 	best_gamma = 0
-	best_lambda = 0
+	best_lambda_bkg = 0
+	best_lambda_si = 0
 	for gamma in gamma_range:
-	    for lambda_ in lambda_range: 
-	        W,H = alt_least_squares(data,loadings,factors,20,lambda_,lambda_,gamma,10)
-	        current_loss = print_loss(temp,W,H)
-	        if current_loss<= best_loss:
-	            best_loss = current_loss 
-	            best_gamma = gamma
-	            best_lambda= lambda_
-	return best_lambda,best_gamma
+		for lambda_bkg in lambda_bkg_range: 
+			for lambda_si in lambda_si_range:				 
+				m = data.shape[0]
+				n = data.shape[1]
+				k = 2
+				 
+				W = np.zeros((m,k))
+				H = np.zeros((k,n))
+
+				for i in range(m):
+					for j in range(k):
+						W[i,j] = np.random.uniform(0,1)
+
+				for i in range(k):
+					for j in range(n):
+						H[i,j] = np.random.uniform(0,1)
+
+				W[0,0] = 1
+				W[0,1] = 0
+
+				W,H = ALS( data, W, H, 10, data[0,:] )
+				W,H = ANLS( data, W, H, 20,lambda_si,lambda_bkg,gamma,10 )
+				# Can comment this line if you donot want to generate huge number of plots
+				Si_avg = plot( H[:,:400], "nmf_als_(%f,%f,%f)_nogradient"%(gamma,lambda_bkg,lambda_si) , "Decomposition using ANLS NMF" )
+				# A lower bound also on the Si_avg so that it doesn't create a valley.
+				if Si_avg < best_si_avg and Si_avg > 10e-4:
+					best_gamma = gamma
+					best_lambda_bkg = lambda_bkg
+					best_lambda_si = lambda_si
+	return best_lambda_si,best_lambda_bkg,best_gamma
+
+def plot_abundance(W, filename):
+	abundance = W[:,0]
+	if( abundance.shape[0] != 100*100 ):
+		# It means the W is generated after appending Phase_B as the first row for data.
+		abundance = abundance[1:]
+	abundance = abundance.reshape( 100,100 )
+	plt.imshow( abundance )
+	plt.title( "Abundance Map" )
+	plt.savefig( filename )
+	plt.close()
 
 # Plot the normalized components with appropriate title and save them.
 def plot(H,filename,title):
-	plt.plot(H[1,:250]/np.linalg.norm(H[1,:]), label='Phase A')
-	plt.plot(H[0,:250]/np.linalg.norm(H[0,:]), label='Phase B')
-	phase_a = H[1,:]/np.linalg.norm(H[1,:])
-	Si = np.mean( phase_a[210:230] )
-	title = title + " silicon score " + str( Si )
+	# Normalize them.
+	H[1,:] = H[1,:]/np.linalg.norm(H[1,:])
+	H[0,:] = H[0,:]/np.linalg.norm(H[0,:])
+	# Classify the phases using the values in Silicon Range
+	Si_0 = np.amax( H[0,210:230] )
+	Si_1 = np.amax( H[1,210:230] )
+	Si_score = np.mean( H[1,210:230] )
+	# We will truncate and plot the 
+	if( Si_0 > Si_1 ):
+		plt.plot(H[1,:250], label='Phase A')
+		plt.plot(H[0,:250], label='Phase B')
+	else:
+		plt.plot(H[0,:250], label='Phase A')
+		plt.plot(H[1,:250], label='Phase B')
+		Si_score = np.mean( H[0,210:230] )
 	plt.legend()
 	plt.xlabel('Energy level')
-	plt.ylabel('Intensity')
+	plt.ylabel('Normalized Intensity')
 	plt.title(title)
 	plt.savefig(filename)
 	plt.close()
+	return Si_score
 
-# 20,10,10,1,10 - best till now
