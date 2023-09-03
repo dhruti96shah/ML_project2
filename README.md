@@ -20,3 +20,8 @@ Apart from the above, a working version of the latest [scikit-learn](https://sci
 ## Running the code.
 1. After installing the above packages, the python notebook run.py contains the blocks of codes to run the relevant experiments.
 
+## Contributors.
+1. Dhruti Shah.
+2. Aditya Varre.
+3. Kshiteej Sheth.
+
